@@ -5,6 +5,7 @@ import argparse
 import requests
 import pandas as pd
 from time import sleep
+import sys
 
 
 class StringBuilder:
@@ -15,10 +16,17 @@ class StringBuilder:
         self.api_url = "https://string-db.org/api"
         self.request_url = "{}/{}/{}"
 
-    def call(self, output_format, method, params):
+    def call(self, output_format, method, params, name=None):
         """
         request information through API
         """
+        if name:
+            print(
+                "Calling String:\n\tmethod: {}\n\tname: {}".format(
+                    method, name
+                    ),
+                file=sys.stderr
+            )
 
         response = requests.post(
             self.request_url.format(self.api_url, output_format, method),
@@ -33,6 +41,8 @@ class StringBuilder:
         writes a network png to file
         """
         file_name = "{}_network.png".format(self.prefix)
+        print("Writing : {}".format(file_name), file=sys.stderr)
+
         with open(file_name, 'wb') as fh:
             fh.write(response.content)
 
@@ -41,6 +51,8 @@ class StringBuilder:
         writes go frame to file
         """
         file_name = "{}_GO.tsv".format(self.prefix)
+        print("Writing : {}".format(file_name), file=sys.stderr)
+
         go_frame.to_csv(
             file_name, sep="\t", index=False
         )
@@ -65,7 +77,10 @@ class StringBuilder:
             "caller_identity": "Kampmann Lab"
         }
 
-        response = self.call(output_format, method, params)
+        response = self.call(
+            output_format, method, params,
+            name="Network Image"
+            )
 
         if save:
             self.write_image(response)
@@ -90,7 +105,9 @@ class StringBuilder:
             "caller_identity": "Kampmann Lab"
         }
 
-        response = self.call(output_format, method, params)
+        response = self.call(
+            output_format, method, params
+            )
 
         all_nodes = set()
         for line in response.text.strip().split("\n"):
@@ -115,7 +132,10 @@ class StringBuilder:
             "called_identity": "Kampmann Lab"
         }
 
-        response = self.call(output_format, method, params)
+        response = self.call(
+            output_format, method, params,
+            name="GO Enrichment"
+            )
         go_frame = pd.read_json(response.text)
 
         if save:
