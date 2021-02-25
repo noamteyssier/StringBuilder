@@ -1,5 +1,4 @@
 # StringBuilder
-## Author: Noam Teyssier
 
 A wrapper of STRING-DB's web api to build networks and GO tables from a given input of genes.
 
