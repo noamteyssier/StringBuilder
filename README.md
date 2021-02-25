@@ -10,6 +10,12 @@ A wrapper of STRING-DB's web api to build networks and GO tables from a given in
 
 # can be called simply with a plain text file of genes
 ./sb.py -i <name>.txt -o <prefix>
+
+# with additional arguments (extend network by 30 nodes, color by evidence, highres image)
+./sb.py -i <name>.txt -o <prefix> \
+    -n 30 \
+    -f evidence \
+    -r high
 ```
 
 ## From python

@@ -58,7 +58,7 @@ class StringBuilder:
         )
 
     def get_image(self, genes=None, save=False, n_nodes=10,
-                  flavor="confidence"):
+                  flavor="confidence", resolution='low'):
         """
         prepares API for network image call and passes request
         """
@@ -66,7 +66,11 @@ class StringBuilder:
         if isinstance(genes, type(None)):
             genes = self.genes
 
-        output_format = "highres_image"
+        if resolution == 'low':
+            output_format = "image"
+        else:
+            output_format = "highres_image"
+
         method = "network"
 
         params = {
@@ -167,6 +171,10 @@ def get_args():
         "-f", "--flavor", required=False, default="confidence",
         help="flavor to color interactions - choices=confidence/evidence"
     )
+    p.add_argument(
+        "-r", "--resolution", required=False, default="low",
+        help="resolution of image to request from string (low/high)"
+    )
     args = p.parse_args()
     return args
 
@@ -180,6 +188,7 @@ def main():
     sb.get_image(
         n_nodes=args.nodes,
         flavor=args.flavor,
+        resolution=args.resolution,
         save=True
         )
 
