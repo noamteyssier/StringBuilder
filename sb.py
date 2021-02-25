@@ -139,6 +139,14 @@ def get_args():
         "-o", "--output_prefix", required=False, default="out",
         help="Output prefix to prepend to recovered data"
     )
+    p.add_argument(
+        "-n", "--nodes", required=False, default=10,
+        help="Number of nodes to extend the network (default=10)"
+    )
+    p.add_argument(
+        "-f", "--flavor", required=False, default="confidence",
+        help="flavor to color interactions - choices=confidence/evidence"
+    )
     args = p.parse_args()
     return args
 
@@ -149,8 +157,16 @@ def main():
 
     sb = StringBuilder(genes, prefix=args.output_prefix)
 
-    sb.get_image(save=True)
-    extended_network = sb.get_extended_nodes()
+    sb.get_image(
+        n_nodes=args.nodes,
+        flavor=args.flavor,
+        save=True
+        )
+
+    extended_network = sb.get_extended_nodes(
+        n_nodes=args.nodes
+    )
+
     sb.get_functional_enrichment(extended_network, save=True)
 
 
