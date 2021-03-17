@@ -16,6 +16,9 @@ A wrapper of STRING-DB's web api to build networks and GO tables from a given in
     -n 30 \
     -f evidence \
     -r high
+
+# requests network as tsv (without extension)
+./sb.py -i <name>.txt -o <prefix> --network
 ```
 
 ## From python
