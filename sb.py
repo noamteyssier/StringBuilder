@@ -57,14 +57,26 @@ class StringBuilder:
             file_name, sep="\t", index=False
         )
 
-    def write_tsv(self, net_frame):
+    def write_net(self, net_frame):
         """
-        writes go frame to file
+        writes network to tab-delim file
         """
         file_name = "{}_net.tsv".format(self.prefix)
         print("Writing : {}".format(file_name), file=sys.stderr)
 
         net_frame.to_csv(
+            file_name, sep="\t", index=False
+        )
+
+    def write_map(self, map_frame):
+        """
+        writes gene-name map to tab-delim file
+        """
+
+        file_name = "{}_map.tsv".format(self.prefix)
+        print("Writing : {}".format(file_name), file=sys.stderr)
+
+        map_frame.to_csv(
             file_name, sep="\t", index=False
         )
 
@@ -186,10 +198,42 @@ class StringBuilder:
             )
 
         if save:
-            self.write_tsv(net_frame)
+            self.write_net(net_frame)
 
         return net_frame
 
+    def get_identifiers(self, genes=None, save=False):
+        """
+        maps gene names to identifiers
+        """
+
+        if isinstance(genes, type(None)):
+            genes = self.genes
+
+        method = "get_string_ids"
+        output_format = "tsv"
+        params = {
+            "identifiers": "%0d".join(genes),
+            "species": 9606,
+            "limit":1,
+            "echo_query": 1,
+            "caller_identity": "Kampmann Lab"
+        }
+
+        response = self.call(
+            output_format, method, params,
+            name="Network TSV"
+            )
+
+        map_frame = pd.read_csv(
+            io.StringIO(response.content.decode('utf-8')),
+            sep="\t"
+            )
+
+        if save:
+            self.write_map(map_frame)
+
+        return map_frame
 
 def read_genes(txt):
     with open(txt, "r") as f:
@@ -234,6 +278,7 @@ def main():
 
     if args.network:
         sb.get_network(save=True)
+        sb.get_identifiers(save=True)
 
     else:
         sb.get_image(
@@ -248,6 +293,7 @@ def main():
         )
 
         sb.get_functional_enrichment(extended_network, save=True)
+        sb.get_identifiers(genes, save=True)
 
 
 if __name__ == '__main__':
