@@ -6,7 +6,7 @@ import requests
 import pandas as pd
 from time import sleep
 import sys
-
+import io
 
 class StringBuilder:
 
@@ -54,6 +54,17 @@ class StringBuilder:
         print("Writing : {}".format(file_name), file=sys.stderr)
 
         go_frame.to_csv(
+            file_name, sep="\t", index=False
+        )
+
+    def write_tsv(self, net_frame):
+        """
+        writes go frame to file
+        """
+        file_name = "{}_net.tsv".format(self.prefix)
+        print("Writing : {}".format(file_name), file=sys.stderr)
+
+        net_frame.to_csv(
             file_name, sep="\t", index=False
         )
 
@@ -147,6 +158,38 @@ class StringBuilder:
 
         return go_frame
 
+    def get_network(self, genes=None, save=False):
+        """
+        requests inter-node network without network extension
+        """
+
+        if isinstance(genes, type(None)):
+            genes = self.genes
+
+        method = "network"
+        output_format = "tsv"
+        params = {
+            "identifiers": "%0d".join(genes),
+            "species": 9606,
+            "caller_identity": "Kampmann Lab"
+        }
+
+        response = self.call(
+            output_format, method, params,
+            name="Network TSV"
+            )
+
+        # print(response.text)
+        net_frame = pd.read_csv(
+            io.StringIO(response.content.decode('utf-8')),
+            sep="\t"
+            )
+
+        if save:
+            self.write_tsv(net_frame)
+
+        return net_frame
+
 
 def read_genes(txt):
     with open(txt, "r") as f:
@@ -175,6 +218,10 @@ def get_args():
         "-r", "--resolution", required=False, default="low",
         help="resolution of image to request from string (low/high)"
     )
+    p.add_argument(
+        "--network", required=False, action='store_true',
+        help="only process network to tsv"
+    )
     args = p.parse_args()
     return args
 
@@ -185,18 +232,22 @@ def main():
 
     sb = StringBuilder(genes, prefix=args.output_prefix)
 
-    sb.get_image(
-        n_nodes=args.nodes,
-        flavor=args.flavor,
-        resolution=args.resolution,
-        save=True
+    if args.network:
+        sb.get_network(save=True)
+
+    else:
+        sb.get_image(
+            n_nodes=args.nodes,
+            flavor=args.flavor,
+            resolution=args.resolution,
+            save=True
+            )
+
+        extended_network = sb.get_extended_nodes(
+            n_nodes=args.nodes
         )
 
-    extended_network = sb.get_extended_nodes(
-        n_nodes=args.nodes
-    )
-
-    sb.get_functional_enrichment(extended_network, save=True)
+        sb.get_functional_enrichment(extended_network, save=True)
 
 
 if __name__ == '__main__':
