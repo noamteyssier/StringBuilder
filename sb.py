@@ -254,8 +254,8 @@ def get_args():
         help="Output prefix to prepend to recovered data"
     )
     p.add_argument(
-        "-n", "--nodes", required=False, default=10,
-        help="Number of nodes to extend the network (default=10)"
+        "-n", "--nodes", required=False, default=0,
+        help="Number of nodes to extend the network (default=0)"
     )
     p.add_argument(
         "-f", "--flavor", required=False, default="confidence",
