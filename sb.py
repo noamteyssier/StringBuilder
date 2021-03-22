@@ -8,6 +8,7 @@ from time import sleep
 import sys
 import io
 
+
 class StringBuilder:
 
     def __init__(self, genes, prefix="out"):
@@ -170,7 +171,7 @@ class StringBuilder:
 
         return go_frame
 
-    def get_network(self, genes=None, save=False):
+    def get_network(self, genes=None, save=False, n_nodes=0):
         """
         requests inter-node network without network extension
         """
@@ -183,7 +184,8 @@ class StringBuilder:
         params = {
             "identifiers": "%0d".join(genes),
             "species": 9606,
-            "caller_identity": "Kampmann Lab"
+            "caller_identity": "Kampmann Lab",
+            "add_white_nodes": n_nodes
         }
 
         response = self.call(
@@ -215,7 +217,7 @@ class StringBuilder:
         params = {
             "identifiers": "%0d".join(genes),
             "species": 9606,
-            "limit":1,
+            "limit": 1,
             "echo_query": 1,
             "caller_identity": "Kampmann Lab"
         }
@@ -234,6 +236,7 @@ class StringBuilder:
             self.write_map(map_frame)
 
         return map_frame
+
 
 def read_genes(txt):
     with open(txt, "r") as f:
@@ -277,7 +280,7 @@ def main():
     sb = StringBuilder(genes, prefix=args.output_prefix)
 
     if args.network:
-        sb.get_network(save=True)
+        sb.get_network(save=True, n_nodes=args.nodes)
         sb.get_identifiers(save=True)
 
     else:
