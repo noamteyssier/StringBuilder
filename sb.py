@@ -269,6 +269,10 @@ def get_args():
         "--network", required=False, action='store_true',
         help="only process network to tsv"
     )
+    p.add_argument(
+        "--go", required=False, action='store_true',
+        help="only process ontologies to tsv"
+    )
     args = p.parse_args()
     return args
 
@@ -281,6 +285,10 @@ def main():
 
     if args.network:
         sb.get_network(save=True, n_nodes=args.nodes)
+        sb.get_identifiers(save=True)
+
+    elif args.go:
+        sb.get_functional_enrichment(save=True)
         sb.get_identifiers(save=True)
 
     else:
